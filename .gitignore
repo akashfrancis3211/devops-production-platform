@@ -41,3 +41,5 @@ crash.*.log
 *.sqlite
 *.db
 EOF
+*.sql
+*.tar.gz
