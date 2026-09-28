@@ -16,17 +16,16 @@ pipeline {
         }
 
 	stage('Test') {
-    		steps {
-        		bat '''
-            			python --version
-            			python -m venv .jenkins-venv
-            			call .jenkins-venv\\Scripts\\activate.bat
-            			python -m pip install --upgrade pip
-            			python -m pip install -r app\\requirements.txt
-            			python -m pip show fastapi
-            			python -m pip show starlette
-            			python -m pytest -v
-       			 '''
+		steps {
+		 bat '''
+		     python --version
+	             python -m venv .jenkins-venv call .jenkins-venv\\Scripts\\activate.bat
+		     python -m pip install --upgrade pip
+		     python -m pip install -r app\\requirements.txt
+		     python -m pip show fastapi
+		     python -m pip show starlette
+		     python -m pytest -v
+	 '''
     }
 }
         stage('Build Docker Image') {
@@ -34,11 +33,21 @@ pipeline {
                 bat '''
                     docker build ^
                         --pull ^
+			--no-cache ^
                         -t %IMAGE_NAME%:%IMAGE_TAG% ^
                         -f docker\\Dockerfile .
                 '''
             }
         }
+
+
+	stage('Verify Docker Image') {
+	   steps {
+               bat '''
+                    docker run --rm %IMAGE_NAME%:%IMAGE_TAG% python -c "import fastapi,starlette; print('FastAPI:', fastapi.__version__); print('Starlette:', starlette.__version__)"
+        '''
+    }
+}
 
         stage('Trivy Security Scan') {
             steps {
