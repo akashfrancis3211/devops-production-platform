@@ -15,19 +15,20 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                bat '''
-                    python --version
-                    python -m venv .jenkins-venv
-                    call .jenkins-venv\\Scripts\\activate.bat
-                    python -m pip install --upgrade pip
-                    python -m pip install -r app\\requirements.txt
-                    python -m pytest -v
-                '''
-            }
-        }
-
+	stage('Test') {
+    		steps {
+        		bat '''
+            			python --version
+            			python -m venv .jenkins-venv
+            			call .jenkins-venv\\Scripts\\activate.bat
+            			python -m pip install --upgrade pip
+            			python -m pip install -r app\\requirements.txt
+            			python -m pip show fastapi
+            			python -m pip show starlette
+            			python -m pytest -v
+       			 '''
+    }
+}
         stage('Build Docker Image') {
             steps {
                 bat '''
