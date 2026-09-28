@@ -2,11 +2,21 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY app/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN useradd --create-home --shell /usr/sbin/nologin appuser
+
 COPY app/ ./app/
+
+RUN chown -R appuser:appuser /app
+
+USER appuser
 
 EXPOSE 8000
 
