@@ -17,46 +17,47 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh '''
-                    python3 -m venv .jenkins-venv
-                    . .jenkins-venv/bin/activate
-                    pip install --upgrade pip
-                    pip install -r app/requirements.txt
-                    pytest -v
+                bat '''
+                    python --version
+                    python -m venv .jenkins-venv
+                    call .jenkins-venv\\Scripts\\activate.bat
+                    python -m pip install --upgrade pip
+                    python -m pip install -r app\\requirements.txt
+                    python -m pytest -v
                 '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                    docker build \
-                        --pull \
-                        -t ${IMAGE_NAME}:${IMAGE_TAG} \
-                        -f docker/Dockerfile .
+                bat '''
+                    docker build ^
+                        --pull ^
+                        -t %IMAGE_NAME%:%IMAGE_TAG% ^
+                        -f docker\\Dockerfile .
                 '''
             }
         }
 
         stage('Trivy Security Scan') {
             steps {
-                sh '''
-                    trivy image \
-                        --severity HIGH,CRITICAL \
-                        --format json \
-                        --output trivy-report.json \
-                        --exit-code 0 \
-                        ${IMAGE_NAME}:${IMAGE_TAG}
+                bat '''
+                    trivy image ^
+                        --severity HIGH,CRITICAL ^
+                        --format json ^
+                        --output trivy-report.json ^
+                        --exit-code 0 ^
+                        %IMAGE_NAME%:%IMAGE_TAG%
                 '''
 
                 archiveArtifacts artifacts: 'trivy-report.json',
                                  fingerprint: true
 
-                sh '''
-                    trivy image \
-                        --severity HIGH,CRITICAL \
-                        --exit-code 1 \
-                        ${IMAGE_NAME}:${IMAGE_TAG}
+                bat '''
+                    trivy image ^
+                        --severity HIGH,CRITICAL ^
+                        --exit-code 1 ^
+                        %IMAGE_NAME%:%IMAGE_TAG%
                 '''
             }
         }
