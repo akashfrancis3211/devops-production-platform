@@ -8,7 +8,7 @@ RUN apt-get update \
 
 COPY app/requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=120 --retries=5 -r requirements.txt
 
 RUN useradd --create-home --shell /usr/sbin/nologin appuser
 
