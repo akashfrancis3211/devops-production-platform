@@ -43,3 +43,4 @@ crash.*.log
 EOF
 *.sql
 *.tar.gz
+*.tgz

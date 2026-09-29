@@ -1,0 +1,13 @@
+replicaCount: 1
+
+image:
+  repository: ecommerce-api
+  tag: "13"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: 8000
+
+containerPort: 8000

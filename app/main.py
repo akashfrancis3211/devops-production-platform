@@ -7,7 +7,7 @@ from app.database import SessionLocal
 
 app = FastAPI(
     title="E-Commerce Order Platform",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 
