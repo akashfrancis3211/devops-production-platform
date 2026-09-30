@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: postgresql+psycopg://ecommerce:ecommerce123@localhost:5432/ecommerce
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ecommerce
 
     services:
       postgres:
