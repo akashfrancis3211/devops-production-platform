@@ -77,9 +77,13 @@ jobs:
           push: true
           load: true
           tags: |
-           ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
            ghcr.io/${{ github.repository_owner }}/ecommerce-api:${{ env.IMAGE_TAG }}
            ghcr.io/${{ github.repository_owner }}/ecommerce-api:latest
+
+      - name: Pull published Docker image
+        run: |
+         docker pull ghcr.io/${{ github.repository_owner }}/ecommerce-api:${IMAGE_TAG}
+         docker tag ghcr.io/${{ github.repository_owner }}/ecommerce-api:${IMAGE_TAG} ${IMAGE_NAME}:${IMAGE_TAG}
 
       - name: Verify Docker image
         run: |
