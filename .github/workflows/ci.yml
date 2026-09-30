@@ -1,0 +1,95 @@
+name: E-Commerce API CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  IMAGE_NAME: ecommerce-api
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: app/requirements.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r app/requirements.txt
+
+      - name: Run tests
+        run: python -m pytest -v
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --pull \
+            --tag ${IMAGE_NAME}:${IMAGE_TAG} \
+            --file docker/Dockerfile .
+
+      - name: Verify Docker image
+        run: |
+          docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} \
+            python -c "import fastapi,starlette; print('FastAPI:', fastapi.__version__); print('Starlette:', starlette.__version__)"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v5
+
+      - name: Lint Helm chart
+        run: helm lint helm/ecommerce-api
+
+      - name: Package Helm chart
+        run: helm package helm/ecommerce-api
+
+      - name: Run Trivy report scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          format: json
+          output: trivy-report.json
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          args: --timeout 15m
+
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v7
+        with:
+          name: trivy-report
+          path: trivy-report.json
+          if-no-files-found: error
+
+      - name: Trivy security gate
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          args: --timeout 15m --ignore-status affected,fix_deferred
+
+      - name: Upload Helm chart
+        uses: actions/upload-artifact@v7
+        with:
+          name: ecommerce-api-helm-chart
+          path: ecommerce-api-*.tgz
+          if-no-files-found: error
