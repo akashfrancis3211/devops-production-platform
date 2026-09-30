@@ -54,13 +54,42 @@ def test_get_orders():
 
 
 def test_get_existing_order():
-    response = client.get("/orders/1")
+    product_response = client.post(
+        "/products",
+        json={
+            "name": "Order Test Product",
+            "price": 1000,
+            "stock": 10
+        }
+    )
+
+    assert product_response.status_code == 201
+
+    product_id = product_response.json()["id"]
+
+    order_response = client.post(
+        "/orders",
+        json={
+            "items": [
+                {
+                    "product_id": product_id,
+                    "quantity": 1
+                }
+            ]
+        }
+    )
+
+    assert order_response.status_code == 201
+
+    order_id = order_response.json()["id"]
+
+    response = client.get(f"/orders/{order_id}")
 
     assert response.status_code == 200
 
     data = response.json()
 
-    assert data["id"] == 1
+    assert data["id"] == order_id
     assert data["status"] == "PENDING"
     assert "items" in data
 
