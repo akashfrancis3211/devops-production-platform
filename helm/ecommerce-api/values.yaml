@@ -1,9 +1,9 @@
 replicaCount: 2
 
 image:
-  repository: ecommerce-api
+  repository: ghcr.io/akashfrancis3211/ecommerce-api
   pullPolicy: IfNotPresent
-  tag: "13"
+  tag: "a5aad2fe0b214d6cc806748deb4100647be36bc3"
 
 service:
   type: ClusterIP
