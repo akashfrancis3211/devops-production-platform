@@ -25,3 +25,8 @@ livenessProbe:
     port: 8000
   initialDelaySeconds: 15
   periodSeconds: 20
+
+ingress:
+  enabled: false
+  className: nginx
+  host: ecommerce.local
