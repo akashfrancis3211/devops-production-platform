@@ -96,6 +96,11 @@ jobs:
       - name: Lint Helm chart
         run: helm lint helm/ecommerce-api
 
+      - name: Validate Helm templates
+        run: |
+          helm template ecommerce-api helm/ecommerce-api
+          helm template ecommerce-api helm/ecommerce-api --set ingress.enabled=true
+
       - name: Package Helm chart
         run: helm package helm/ecommerce-api
 
