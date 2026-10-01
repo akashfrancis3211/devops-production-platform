@@ -98,8 +98,15 @@ jobs:
 
       - name: Validate Helm templates
         run: |
-          helm template ecommerce-api helm/ecommerce-api
-          helm template ecommerce-api helm/ecommerce-api --set ingress.enabled=true
+          helm template ecommerce-api helm/ecommerce-api > rendered.yaml
+          helm template ecommerce-api helm/ecommerce-api \
+            --set ingress.enabled=true > rendered-ingress.yaml
+
+          grep -q "secretKeyRef:" rendered.yaml
+          grep -q "name: ecommerce-api-secret" rendered.yaml
+          grep -q "key: DATABASE_URL" rendered.yaml
+
+          echo "Helm Secret reference validation passed"
 
       - name: Validate monitoring manifests
         run: |
