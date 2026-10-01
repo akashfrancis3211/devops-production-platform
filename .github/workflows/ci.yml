@@ -101,6 +101,29 @@ jobs:
           helm template ecommerce-api helm/ecommerce-api
           helm template ecommerce-api helm/ecommerce-api --set ingress.enabled=true
 
+      - name: Validate monitoring manifests
+        run: |
+          python -m pip install pyyaml
+          python - <<'PY'
+          import yaml
+
+          with open("monitoring/servicemonitor.yaml") as file:
+              manifest = yaml.safe_load(file)
+
+          assert manifest["apiVersion"] == "monitoring.coreos.com/v1"
+          assert manifest["kind"] == "ServiceMonitor"
+          assert manifest["metadata"]["name"] == "ecommerce-api"
+          assert manifest["metadata"]["namespace"] == "ecommerce"
+          assert manifest["spec"]["namespaceSelector"]["matchNames"] == ["ecommerce"]
+          assert manifest["spec"]["selector"]["matchLabels"]["app.kubernetes.io/name"] == "ecommerce-api"
+
+          endpoint = manifest["spec"]["endpoints"][0]
+          assert endpoint["port"] == "http"
+          assert endpoint["path"] == "/metrics"
+
+          print("ServiceMonitor validation passed")
+          PY
+
       - name: Package Helm chart
         run: helm package helm/ecommerce-api
 
