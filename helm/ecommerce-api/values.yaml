@@ -27,6 +27,9 @@ securityContext:
   capabilities:
     drop:
       - ALL
+  seccompProfile:
+    type: RuntimeDefault
+    
 env:
   - name: DATABASE_URL
     valueFrom:
