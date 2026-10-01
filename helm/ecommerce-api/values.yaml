@@ -32,6 +32,7 @@ env:
       secretKeyRef:
         name: ecommerce-api-secret
         key: DATABASE_URL
+        optional: false
 
 readinessProbe:
   httpGet:
