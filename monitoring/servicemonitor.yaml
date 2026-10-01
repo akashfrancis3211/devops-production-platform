@@ -6,6 +6,10 @@ metadata:
   namespace: ecommerce
 
 spec:
+  namespaceSelector:
+    matchNames:
+      - ecommerce
+
   selector:
     matchLabels:
       app.kubernetes.io/name: ecommerce-api
