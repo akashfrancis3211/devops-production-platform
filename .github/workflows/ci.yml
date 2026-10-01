@@ -112,6 +112,8 @@ jobs:
           grep -q "allowPrivilegeEscalation: false" rendered.yaml
           grep -q "drop:" rendered.yaml
           grep -q -- "- ALL" rendered.yaml
+          grep -q "seccompProfile:" rendered.yaml
+          grep -q "type: RuntimeDefault" rendered.yaml
 
           echo "Helm Secret reference validation passed"
           echo "Helm security context validation passed"
