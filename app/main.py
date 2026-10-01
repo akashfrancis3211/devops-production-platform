@@ -4,12 +4,14 @@ from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.database import SessionLocal
 
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(
     title="E-Commerce Order Platform",
     version="1.1.0"
 )
 
+Instrumentator().instrument(app).expose(app)
 
 def get_db():
     db = SessionLocal()
