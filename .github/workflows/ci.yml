@@ -105,8 +105,16 @@ jobs:
           grep -q "secretKeyRef:" rendered.yaml
           grep -q "name: ecommerce-api-secret" rendered.yaml
           grep -q "key: DATABASE_URL" rendered.yaml
+          grep -q "optional: false" rendered.yaml
+
+          grep -q "runAsNonRoot: true" rendered.yaml
+          grep -q "readOnlyRootFilesystem: true" rendered.yaml
+          grep -q "allowPrivilegeEscalation: false" rendered.yaml
+          grep -q "drop:" rendered.yaml
+          grep -q -- "- ALL" rendered.yaml
 
           echo "Helm Secret reference validation passed"
+          echo "Helm security context validation passed"
 
       - name: Validate monitoring manifests
         run: |
