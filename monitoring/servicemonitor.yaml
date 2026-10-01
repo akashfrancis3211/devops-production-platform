@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+
+metadata:
+  name: ecommerce-api
+  namespace: ecommerce
+
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ecommerce-api
+
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
