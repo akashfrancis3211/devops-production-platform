@@ -1,0 +1,63 @@
+name: E-Commerce API CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "GHCR image tag to deploy"
+        required: true
+        default: "latest"
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  IMAGE_REPOSITORY: ghcr.io/${{ github.repository_owner }}/ecommerce-api
+
+jobs:
+  deploy:
+    name: Helm Deployment Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v5
+
+      - name: Update image tag
+        run: |
+          sed -i "s|tag: .*|tag: \"${{ github.event.inputs.image_tag }}\"|" \
+            helm/ecommerce-api/values.yaml
+
+      - name: Helm lint
+        run: |
+          helm lint helm/ecommerce-api
+
+      - name: Render Kubernetes manifests
+        run: |
+          helm template ecommerce-api helm/ecommerce-api
+
+      - name: Render Ingress manifests
+        run: |
+          helm template ecommerce-api helm/ecommerce-api \
+            --set ingress.enabled=true
+
+      - name: Verify deployment image
+        run: |
+          helm template ecommerce-api helm/ecommerce-api \
+            | grep "image:"
+
+      - name: Package Helm chart
+        run: |
+          mkdir -p artifacts
+          helm package helm/ecommerce-api \
+            --destination artifacts
+
+      - name: Upload Helm package
+        uses: actions/upload-artifact@v5
+        with:
+          name: ecommerce-api-helm-chart
+          path: artifacts/*.tgz
